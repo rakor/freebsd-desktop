@@ -1,0 +1,194 @@
+#!/bin/sh
+
+###################
+# Userdefined variables - Change anything according to your needs here
+#
+
+LANGUAGE=de_DE.UTF-8
+COUNTRYCODE=de
+CHARSET=UTF-8
+CLASSNAME=german
+CLASSDESC=GermanUsers
+
+AUTOBOOTDELAY=3
+
+NTPSERVER=de.pool.ntp.org
+
+###################
+# Don't change anything after this line if you don't know what you are doing
+#
+
+#+ internal variables
+#
+CRONTAB=/etc/crontab
+RCCONF=/etc/rc.conf
+PROFILE=/etc/profile
+LOGINCONF=/etc/login.conf
+ADDUSERCONF=/etc/adduser.conf
+KDMXSETUP=/usr/local/share/config/kdm/Xsetup
+KDMXSETUPPATH=/usr/local/share/config/kdm
+CONFIGEXAMPLES=/usr/local/share/examples/rakors_config
+LOADERCONF=/boot/loader.conf
+
+#+ check for root
+#
+if [ `id -u` -ne 0 ]; then
+	echo "This script must be run as root."
+	exit 1
+fi
+
+
+#+ freebsd-update
+#
+echo "searching for updates... please stand by"
+if freebsd-update fetch | grep -q "^No updates needed"; then
+	echo "+ No Update to install"
+else
+	freebsd-update install
+	echo "Updates installed"
+fi
+
+
+#+ install packages
+#
+env ASSUME_ALWAYS_YES=yes pkg bootstrap
+pkg install -y x11/xorg x11/kde4 editors/vim sysutils/anacron devel/git
+
+
+#+ anacron
+#
+ANACRON=/usr/local/sbin/anacron
+if grep -q "$ANACRON$" $CRONTAB; then
+	echo "! Anacron is already configured in $CRONTAB. Doing nothing."
+else
+	echo "0 0 * * * root $ANACRON" >> $CRONTAB
+	echo "# Anacron set in $CRONTAB"
+fi 
+
+if grep -q "anacron_enable=" $RCCONF; then
+	echo "! Anacron is already configured in $RCCONF. Doing nothing."
+else
+	echo "anacron_enable=\"YES\"" >> $RCCONF
+	echo "+ Anacron set in $RCCONF"
+fi 
+if grep -E -q "^[^#].*periodic" /etc/crontab; then
+	cp $CRONTAB ${CRONTAB}_old
+	cat ${CRONTAB}_old | sed -E -e "s/^(.*periodic (daily|weekly|monthly).*)/#\1/" > $CRONTAB
+	echo "+ Deactivated the periodic-scripts in $CRONTAB"
+else
+	echo "! There is no activated periodic-script in $CRONTAB. Doing nothing."
+fi
+
+
+#+ Enable KDE
+#
+if grep -q "kdm4_enable" $RCCONF; then
+	echo "! KDM is present in $RCCONF. Doing nothing"
+else
+	echo "kdm4_enable=\"YES\"" >> $RCCONF
+	echo "+ KDM activated."
+	if grep -q "^hald_enable" $RCCONF; then
+		echo "! hald already present"
+	else
+		echo "hald_enable=\"YES\"" >> $RCCONF
+		echo "+ hald enabled in $RCCONF"
+	fi
+	if grep -q "^dbus_enable" $RCCONF; then
+		echo "! dbus already present"
+	else
+		echo "dbus_enable=\"YES\"" >> $RCCONF
+		echo "+ dbus enabled in $RCCONF"
+	fi
+fi
+
+
+#+ language
+#
+if grep -q "^LANG=" $PROFILE; then
+	echo "! LANG is already set in $PROFILE. Doing nothing."
+else
+	echo "LANG=$LANGUAGE; export LANG" >> $PROFILE
+	echo "+ Language $LANGUAGE set in $PROFILE"
+fi
+
+
+if grep -q "^$CLASSNAME" $LOGINCONF; then
+	echo "! $CLASSNAME is already present in $LOGINCONF. Doing nothing."
+else
+	echo "$CLASSNAME|$CLASSDESC:\\" >> $LOGINCONF
+	echo ":charset=$CHARSET:\\" >> $LOGINCONF
+	echo ":lang=$LANGUAGE:\\" >> $LOGINCONF
+	echo "tc=default:" >> $LOGINCONF
+	echo "+ $CLASSNAME set in $LOGINCONF"
+
+	if cap_mkdb /etc/login.conf; then
+		echo "+ Login-Database refreshed"
+	else
+		echo "! Could not refresh Login-Database"
+	fi
+	if grep -q "^defaultclass" $ADDUSERCONF; then
+		echo "! defaultclass is already set. We will not set $CLASSNAME"
+	else
+		echo "defaultclass=$CLASSNAME" >> $ADDUSERCONF
+		echo "+ $CLASSNAME set as defaultclass for new users"
+	fi
+fi
+
+if [ -e $KDMXSETUP ] && grep -q "^setxkbmap" $KDMXSETUP; then
+	echo "! KDM not installed or language already set. Doing nothing"
+else
+	if [ ! -d $KDMXSETUPPATH ]; then
+		mkdir -p $KDMXSETUPPATH
+		echo "$KDMXSETUPPATH created"
+	fi
+	echo "setxkbmap $COUNTRYCODE" >> $KDMXSETUP
+	echo "+ $COUNTRYCODE for KDM set"
+fi
+
+
+#+ clone git
+#
+if [ -d $CONFIGEXAMPLES ]; then
+	echo "! $CONFIGEXAMPLES does already exist. Doing nothing."
+else
+	git clone https://github.com/rakor/config $CONFIGEXAMPLES
+	echo "+ cloned"
+fi 
+
+
+#+ autoboot delay
+#
+if [ -e $LOADERCONF ] && grep -q "^autoboot_delay" $LOADERCONF; then
+	echo "! Autoboot-delay already set. Doing nothing"
+else
+	echo "autoboot_delay=\"$AUTOBOOTDELAY\"" >> $LOADERCONF
+	echo "+ Autobootdelay set to $AUTOBOOTDELAY seconds"
+fi
+
+
+#+ Powersavings
+#
+if grep -q "powerd_enable" $RCCONF; then
+	echo "! CPU-Scaling is present in $RCCONF. Doing nothing"
+else
+	echo "powerd_enable=\"YES\"" >> $RCCONF
+	echo "+ CPU-scaling activated."
+fi
+
+
+#+ ntp
+#
+if grep -q "ntpdate_enable" $RCCONF; then
+	echo "! ntp  is present in $RCCONF. Doing nothing"
+else
+	echo "ntpdate_enable=\"YES\"" >> $RCCONF
+	echo "+ ntp activated."
+	if grep -q "^ntpdate_hosts" $RCCONF; then
+		echo "! ntpdate_hosts is already set in $RCCONF. Doing nothing"
+	else
+		echo "ntpdate_hosts=\"$NTPSERVER\"" >> $RCCONF
+		echo "+ ntpdate_hosts set to $NTPSERVER. Please verify if this host ist existent"
+	fi
+fi
+
+
