@@ -29,6 +29,7 @@ KDMXSETUP=/usr/local/share/config/kdm/Xsetup
 KDMXSETUPPATH=/usr/local/share/config/kdm
 CONFIGEXAMPLES=/usr/local/share/examples/rakors_config
 LOADERCONF=/boot/loader.conf
+PASSWD=/etc/passwd
 
 #+ check for root
 #
@@ -132,6 +133,8 @@ else
 		echo "defaultclass=$CLASSNAME" >> $ADDUSERCONF
 		echo "+ $CLASSNAME set as defaultclass for new users"
 	fi
+	cat $PASSWD | awk -F : '{if ($3>1000 && $3<2000) {print $1}}' | xargs -I {} pw usermod {} -L $CLASSNAME
+	echo "Changed all users to $CLASSNAME"
 fi
 
 if [ -e $KDMXSETUP ] && grep -q "^setxkbmap" $KDMXSETUP; then
