@@ -8,3 +8,5 @@ and setup some stuff you could like to have on a desktop machine such as
 languagesettings, tmp-cleanup, anacron, powerd, ntp etc.
 
 At the moment the script will install a desktop based on KDE
+
+You should have at least 8GB free space to install all the packages.
