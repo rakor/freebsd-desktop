@@ -131,10 +131,10 @@ fi
 if grep -q "^$CLASSNAME" $LOGINCONF; then
 	echo "! $CLASSNAME is already present in $LOGINCONF. Doing nothing."
 else
-	echo "$CLASSNAME|$CLASSDESC:\\" >> $LOGINCONF
-	echo ":charset=$CHARSET:\\" >> $LOGINCONF
-	echo ":lang=$LANGUAGE:\\" >> $LOGINCONF
-	echo "tc=default:" >> $LOGINCONF
+	printf "$CLASSNAME|$CLASSDESC:\\" >> $LOGINCONF
+	printf "\t:charset=$CHARSET:\\" >> $LOGINCONF
+	printf "\t:lang=$LANGUAGE:\\" >> $LOGINCONF
+	printf "\t:tc=default:" >> $LOGINCONF
 	echo "+ $CLASSNAME set in $LOGINCONF"
 
 	if cap_mkdb /etc/login.conf; then
