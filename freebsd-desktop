@@ -229,7 +229,7 @@ fi
 
 #+ no Coredumps please
 if grep -q "^kern.coredump" $SYSCTL; then
-    echo "Coredumps are already set. Doing nothing"
+    echo "! Coredumps are already set. Doing nothing"
 else
     echo "kern.coredump=0" >> $SYSCTL
     echo "+ Coredumps are turned off"
