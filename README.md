@@ -20,5 +20,8 @@ The default behaviour is to install a german KDE. If you'd like to have an other
 Then let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>
 
+If you need to add some users, this is the time for you:
+<pre><code>adduser</code></pre>
+
 If the script has done its job and everything went well reboot into your new desktop
 <pre><code>reboot</code></pre>
