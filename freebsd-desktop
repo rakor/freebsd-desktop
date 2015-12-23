@@ -218,7 +218,7 @@ fi
 #+ XRersources
 #
 XRESOURCESSKEL=dot.Xresources
-if grep -q "^xterm*....ground" $SKELETONS/$XRESOURCESSKEL; then
+if grep -q "^xterm\*....ground" $SKELETONS/$XRESOURCESSKEL; then
     echo "! There are some colors set for xterm. Doing nothing"
 else
     echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XRESOURCESSKEL
