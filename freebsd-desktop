@@ -15,7 +15,7 @@ AUTOBOOTDELAY=3
 NTPSERVER=de.pool.ntp.org
 
 ###################
-# Don't change anything after this line if you don't know what you are doing
+# Don't change anything behind this line if you don't know what you are doing
 #
 
 #+ internal variables
@@ -33,6 +33,7 @@ PASSWD=/etc/passwd
 SKELETONS=/usr/share/skel
 SYSCTL=/etc/sysctl.conf
 ANACRONTAB=/usr/local/etc/anacrontab
+
 
 #+ check for root
 #
