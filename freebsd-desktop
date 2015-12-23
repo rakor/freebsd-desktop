@@ -30,6 +30,9 @@ KDMXSETUPPATH=/usr/local/share/config/kdm
 CONFIGEXAMPLES=/usr/local/share/examples/rakors_config
 LOADERCONF=/boot/loader.conf
 PASSWD=/etc/passwd
+SKELETONS=/usr/share/skel
+SYSCTL=/etc/sysctl.conf
+ANACRONTAB=/usr/local/etc/anacrontab
 
 #+ check for root
 #
@@ -212,3 +215,48 @@ else
 fi
 
 
+#+ XRersources
+#
+XRESOURCESSKEL=dot.Xresources
+if grep -q "^xterm*....ground" $SKELETONS/$XRESOURCESSKEL; then
+    echo "! There are some colors set for xterm. Doing nothing"
+else
+    echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XRESOURCESSKEL
+    echo "xterm*background: rgb:00/00/00" >> $SKELETONS/$XRESOURCESSKEL
+    echo "+ Colors for xterm set nicely"
+fi
+
+
+#+ no Coredumps please
+if grep -q "^kern.coredump" $SYSCTL; then
+    echo "Coredumps are already set. Doing nothing"
+else
+    echo "kern.coredump=0" >> $SYSCTL
+    echo "+ Coredumps are turned off"
+fi
+
+
+#+ search for updates regularly
+#
+if grep -q -E "pkg[[:space:]]+upgrade" $ANACRONTAB; then
+    printf "7\t10\tpkgupgrade\tpkg upgrade -n\n" >> $ANACRONTAB
+    echo "+ root will be informed when there are new packages available"
+else
+    echo "! pkg upgrade already set in anacrontab"
+fi
+if grep -q -E "freebsd-update" $ANACRONTAB; then
+    printf "7\t40\tfreebsd-update\tfreebsd-update cron\n" >> $ANACRONTAB
+    echo "+ root will be informed when there are updates for FreeBSD available"
+else
+    echo "! freebsd-update already set in anacrontab"
+fi
+
+
+#+ clear tmp
+#
+VARIABLE=clear_tmp_enable
+if grep -q -E "^[[:space:]]*$VARIABLE" $RCCONF; then
+    echo "! $VARIABLE already set in $RCCONF"
+else
+    echo "$VARIABLE=\”YES\”" >> $RCCONF
+fi
