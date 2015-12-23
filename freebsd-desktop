@@ -105,9 +105,11 @@ PACKAGESUFFIX=-kde-l10n
 PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
 if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
 	echo "Trying to install the KDE-languagepack for $COUNTRYCODE"
-	pkg install -y ${PACKAGENAME} \
-	&& echo "+ ${PACKAGENAME} installed" \
-	|| echo "! could not install ${PACKAGENAME}"
+	if pkg install -y ${PACKAGENAME}; then
+		echo "+ ${PACKAGENAME} installed" 
+	else
+		echo "! could not install ${PACKAGENAME}"
+	fi
 else
 	echo "! There is no KDE-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
 fi
