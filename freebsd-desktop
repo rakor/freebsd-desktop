@@ -149,29 +149,20 @@ else
 	echo "Changed all users to $CLASSNAME"
 fi
 
-if [ -e $KDMXSETUP ] && grep -q "^setxkbmap" $KDMXSETUP; then
-	echo "! KDM not installed or language already set. Doing nothing"
-else
-	if [ ! -d $KDMXSETUPPATH ]; then
-		mkdir -p $KDMXSETUPPATH
-		echo "$KDMXSETUPPATH created"
-	fi
-	echo "setxkbmap $COUNTRYCODE" >> $KDMXSETUP
-	echo "+ $COUNTRYCODE for KDM set"
-fi
+XORGCONFD=/usr/local/etc/X11/xorg.conf.d
+XORGKEYBOARDSNIPPET=$XORGCONFD/00-keyboard.conf
+XORGKEYBOARDSECTION="Section \"InputClass\"\n\
+\tIdentifier \"system-keyboard\"\n\
+\tMatchIsKeyboard \"on\"\n\
+\tOption \"XkbModel\" \"pc105\"\n\
+\tOption \"XkbLayout\" \"$COUNTRYCODE\"\n\
+EndSection"
 
-XORGKEYBOARDSNIPPET=/usr/local/etc/X11/xorg.conf.d/00-keyboard.conf
-XORGKEYBOARDSECTION=Section "InputClass"\n\
-\tIdentifier "system-keyboard" \n\
-\tMatchIsKeyboard "on" \n\
-\tOption "XkbModel" "pc105"\n \
-\tOption "XkbLayout" "$COUNTRYCODE"\n \
-EndSection
-if [ ! -e $XORGKEYBOARDSNIPPET ]; then
-    printf $XORGKEYBOARDSECTION > $XORGKEYBOARDSNIPPET
+if [ ! -e $XORGCONFD/*keyboard* ]; then
+    printf "$XORGKEYBOARDSECTION" > $XORGKEYBOARDSNIPPET
     echo "+ Keyboardlayout $COUNTRYCODE set for Xorg"
 else
-    echo "! There is a file called $XORGKEYBOARDSNIPPET. We assume you have set up your keyboard. Doing nothing"
+    echo "! There seems to be a file in $XORGCONFD configuring your keyboard. Doing nothing"
 fi
 
 
