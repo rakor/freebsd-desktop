@@ -160,6 +160,20 @@ else
 	echo "+ $COUNTRYCODE for KDM set"
 fi
 
+XORGKEYBOARDSNIPPET=/usr/local/etc/X11/xorg.conf.d/00-keyboard.conf
+XORGKEYBOARDSECTION=Section "InputClass"\n\
+\tIdentifier "system-keyboard" \n\
+\tMatchIsKeyboard "on" \n\
+\tOption "XkbModel" "pc105"\n \
+\tOption "XkbLayout" "$COUNTRYCODE"\n \
+EndSection
+if [ ! -e $XORGKEYBOARDSNIPPET ]; then
+    printf $XORGKEYBOARDSECTION > $XORGKEYBOARDSNIPPET
+    echo "+ Keyboardlayout $COUNTRYCODE set for Xorg"
+else
+    echo "! There is a file called $XORGKEYBOARDSNIPPET. We assume you have set up your keyboard. Doing nothing"
+fi
+
 
 #+ clone git
 #
