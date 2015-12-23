@@ -132,9 +132,9 @@ fi
 if grep -q "^$CLASSNAME" $LOGINCONF; then
 	echo "! $CLASSNAME is already present in $LOGINCONF. Doing nothing."
 else
-	printf "$CLASSNAME|$CLASSDESC:\\ \n" >> $LOGINCONF
-	printf "\t:charset=$CHARSET:\\ \n" >> $LOGINCONF
-	printf "\t:lang=$LANGUAGE:\\ \n" >> $LOGINCONF
+	printf "$CLASSNAME|$CLASSDESC:\\\\ \n" >> $LOGINCONF
+	printf "\t:charset=$CHARSET:\\\\ \n" >> $LOGINCONF
+	printf "\t:lang=$LANGUAGE:\\\\ \n" >> $LOGINCONF
 	printf "\t:tc=default:\n" >> $LOGINCONF
 	echo "+ $CLASSNAME set in $LOGINCONF"
 
