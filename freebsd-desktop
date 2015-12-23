@@ -66,7 +66,7 @@ if grep -q "$ANACRON$" $CRONTAB; then
 	echo "! Anacron is already configured in $CRONTAB. Doing nothing."
 else
 	printf "0\t0\t*\t*\t*\troot\t$ANACRON" >> $CRONTAB
-	echo "# Anacron set in $CRONTAB"
+	echo "+ Anacron set in $CRONTAB"
 fi 
 
 if grep -q "anacron_enable=" $RCCONF; then
