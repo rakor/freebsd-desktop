@@ -14,6 +14,9 @@ AUTOBOOTDELAY=3
 
 NTPSERVER=de.pool.ntp.org
 
+#Here you can choose KDE or AWESOME
+DESKTOP=AWESOME
+
 ###################
 # Don't change anything behind this line if you don't know what you are doing
 #
@@ -56,8 +59,16 @@ fi
 
 #+ install packages
 #
+PACKAGES="x11/xorg editors/vim sysutils/anacron devel/git"
+if [ "$DESKTOP" == "KDE" ]; then
+	PACKAGES="$PACKAGES x11/kde4"
+elif [ "$DESKTOP" == "AWESOME" ]; then
+	PACKAGES="$PACKAGES x11-wm/awesome x11/slim"
+else
+	echo "You have not chosen a desktop!"
+fi
 env ASSUME_ALWAYS_YES=yes pkg bootstrap
-pkg install -y x11/xorg x11/kde4 editors/vim sysutils/anacron devel/git
+pkg install -y $PACKAGES
 
 
 #+ anacron
@@ -87,35 +98,71 @@ fi
 
 #+ Enable KDE
 #
-if grep -q "kdm4_enable" $RCCONF; then
-	echo "! KDM is present in $RCCONF. Doing nothing"
-else
-	echo "kdm4_enable=\"YES\"" >> $RCCONF
-	echo "+ KDM activated."
-	if grep -q "^hald_enable" $RCCONF; then
-		echo "! hald already present"
+if [ "$DESKTOP" == "KDE" ]; then
+	if grep -q "kdm4_enable" $RCCONF; then
+		echo "! KDM is present in $RCCONF. Doing nothing"
 	else
-		echo "hald_enable=\"YES\"" >> $RCCONF
-		echo "+ hald enabled in $RCCONF"
+		echo "kdm4_enable=\"YES\"" >> $RCCONF
+		echo "+ KDM activated."
+		if grep -q "^hald_enable" $RCCONF; then
+			echo "! hald already present"
+		else
+			echo "hald_enable=\"YES\"" >> $RCCONF
+			echo "+ hald enabled in $RCCONF"
+		fi
+		if grep -q "^dbus_enable" $RCCONF; then
+			echo "! dbus already present"
+		else
+			echo "dbus_enable=\"YES\"" >> $RCCONF
+			echo "+ dbus enabled in $RCCONF"
+		fi
 	fi
-	if grep -q "^dbus_enable" $RCCONF; then
-		echo "! dbus already present"
+	PACKAGESUFFIX=-kde-l10n
+	PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
+	if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
+		echo "Trying to install the KDE-languagepack for $COUNTRYCODE"
+		if pkg install -y ${PACKAGENAME}; then
+			echo "+ ${PACKAGENAME} installed" 
+		else
+			echo "! could not install ${PACKAGENAME}"
+		fi
 	else
-		echo "dbus_enable=\"YES\"" >> $RCCONF
-		echo "+ dbus enabled in $RCCONF"
+		echo "! There is no KDE-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
 	fi
 fi
-PACKAGESUFFIX=-kde-l10n
-PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
-if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
-	echo "Trying to install the KDE-languagepack for $COUNTRYCODE"
-	if pkg install -y ${PACKAGENAME}; then
-		echo "+ ${PACKAGENAME} installed" 
+
+
+#+ Enable Awesome
+#
+if [ "$DESKTOP" == "AWESOME" ]; then
+	if grep -q "slim_enable" $RCCONF; then
+		echo "! Slim is present in $RCCONF. Doing nothing"
 	else
-		echo "! could not install ${PACKAGENAME}"
+		echo "slim_enable=\"YES\"" >> $RCCONF
+		echo "+ Slim activated."
+		if grep -q "^hald_enable" $RCCONF; then
+			echo "! hald already present"
+		else
+			echo "hald_enable=\"YES\"" >> $RCCONF
+			echo "+ hald enabled in $RCCONF"
+		fi
+		if grep -q "^dbus_enable" $RCCONF; then
+			echo "! dbus already present"
+		else
+			echo "dbus_enable=\"YES\"" >> $RCCONF
+			echo "+ dbus enabled in $RCCONF"
+		fi
 	fi
-else
-	echo "! There is no KDE-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
+
+	XINITRCSKEL=dot.xinitrc
+	if [ -e $SKELETONS/$XINITRCSKEL ]; then
+	    echo "! There is a xinitrc skeleton available. Doing nothing"
+	else
+	    echo "export LANG=$LANGUAGE" >> $SKELETONS/$XINITRCSKEL
+	    echo "export MM_CHARSET=$CHARSET" >> $SKELETONS/$XINITRCSKEL
+	    echo "exec awesome" >> $SKELETONS/$XINITRCSKEL
+	    echo "+ xinitrc skeleton prepared to launch awesome"
+	fi
 fi
 
 
@@ -216,14 +263,14 @@ else
 fi
 
 
-#+ XRersources
+#+ Xdefaults
 #
-XRESOURCESSKEL=dot.Xresources
-if grep -q "^xterm\*....ground" $SKELETONS/$XRESOURCESSKEL; then
+XDEFAULTSSKEL=dot.Xdefaults
+if grep -q "^xterm\*....ground" $SKELETONS/$XDEFAULTSSKEL; then
     echo "! There are some colors set for xterm. Doing nothing"
 else
-    echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XRESOURCESSKEL
-    echo "xterm*background: rgb:00/00/00" >> $SKELETONS/$XRESOURCESSKEL
+    echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XDEFAULTSSKEL
+    echo "xterm*background: rgb:00/00/00" >> $SKELETONS/$XDEFAULTSSKEL
     echo "+ Colors for xterm set nicely"
 fi
 
