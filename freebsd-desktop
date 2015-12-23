@@ -258,5 +258,5 @@ VARIABLE=clear_tmp_enable
 if grep -q -E "^[[:space:]]*$VARIABLE" $RCCONF; then
     echo "! $VARIABLE already set in $RCCONF"
 else
-    echo "$VARIABLE=\”YES\”" >> $RCCONF
+    echo "$VARIABLE=”YES”" >> $RCCONF
 fi
