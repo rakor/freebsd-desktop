@@ -238,13 +238,13 @@ fi
 
 #+ search for updates regularly
 #
-if grep -q -E "pkg[[:space:]]+upgrade" $ANACRONTAB; then
+if ! grep -q -E "pkg[[:space:]]+upgrade" $ANACRONTAB; then
     printf "7\t10\tpkgupgrade\tpkg upgrade -n\n" >> $ANACRONTAB
     echo "+ root will be informed when there are new packages available"
 else
     echo "! pkg upgrade already set in anacrontab"
 fi
-if grep -q -E "freebsd-update" $ANACRONTAB; then
+if ! grep -q -E "freebsd-update" $ANACRONTAB; then
     printf "7\t40\tfreebsd-update\tfreebsd-update cron\n" >> $ANACRONTAB
     echo "+ root will be informed when there are updates for FreeBSD available"
 else
