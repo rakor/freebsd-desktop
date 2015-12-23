@@ -131,10 +131,10 @@ fi
 if grep -q "^$CLASSNAME" $LOGINCONF; then
 	echo "! $CLASSNAME is already present in $LOGINCONF. Doing nothing."
 else
-	printf "$CLASSNAME|$CLASSDESC:\\" >> $LOGINCONF
-	printf "\t:charset=$CHARSET:\\" >> $LOGINCONF
-	printf "\t:lang=$LANGUAGE:\\" >> $LOGINCONF
-	printf "\t:tc=default:" >> $LOGINCONF
+	printf "$CLASSNAME|$CLASSDESC:\\ \n" >> $LOGINCONF
+	printf "\t:charset=$CHARSET:\\ \n" >> $LOGINCONF
+	printf "\t:lang=$LANGUAGE:\\ \n" >> $LOGINCONF
+	printf "\t:tc=default:\n" >> $LOGINCONF
 	echo "+ $CLASSNAME set in $LOGINCONF"
 
 	if cap_mkdb /etc/login.conf; then
@@ -149,7 +149,7 @@ else
 		echo "+ $CLASSNAME set as defaultclass for new users"
 	fi
 	cat $PASSWD | awk -F : '{if ($3>1000 && $3<2000) {print $1}}' | xargs -I {} pw usermod {} -L $CLASSNAME
-	echo "Changed all users to $CLASSNAME"
+	echo "+ Changed all users to $CLASSNAME"
 fi
 
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
