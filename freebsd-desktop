@@ -65,7 +65,7 @@ ANACRON=/usr/local/sbin/anacron
 if grep -q "$ANACRON$" $CRONTAB; then
 	echo "! Anacron is already configured in $CRONTAB. Doing nothing."
 else
-	echo "0 0 * * * root $ANACRON" >> $CRONTAB
+	printf "0\t0\t*\t*\t*\troot\t$ANACRON" >> $CRONTAB
 	echo "# Anacron set in $CRONTAB"
 fi 
 
