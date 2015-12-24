@@ -321,7 +321,7 @@ if [ -d $CONFIGEXAMPLES ]; then
 	echo "! $CONFIGEXAMPLES does already exist. Doing nothing."
 else
 	git clone https://github.com/rakor/config $CONFIGEXAMPLES
-	echo "+ cloned"
+	echo "+ Example config-files cloned"
 fi 
 
 
@@ -335,3 +335,7 @@ cp $CONFIGEXAMPLES/home/.vimrc $SKELETONS/dot.vimrc
 cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 
+#+ Final information
+#
+echo "Now you can add some users using 'adduser' and then restart the system using 'reboot' to boot into your new system."
+echo "Have Fun!!"
