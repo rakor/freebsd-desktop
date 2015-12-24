@@ -335,5 +335,6 @@ cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 #+ Final information
 #
+echo " "
 echo "Now you can add some users using 'adduser' and then restart the system using 'reboot' to boot into your new system."
 echo "Have Fun!!"
