@@ -7,15 +7,18 @@ FreeBSD. It will do an update of the system, install a lot of packages
 and setup some stuff you could like to have on a desktop machine such as
 languagesettings, tmp-cleanup, anacron, powerd, ntp etc.
 
-At the moment the script will install a desktop based on KDE
+At the moment the script will install a desktop based on KDE or Awesome (you have the choice).
 
-You should have at least 8GB free space to install all the packages.
+You should have at least 8GB free space to install a KDE deaktop.
+
+To get all benefits out of this script you should _not_ add a user during installation, but after having this script added some config-files to the homedir-skeleton.
+
 
 ## Using this script
 After having done a freh installation of FreeBSD (I'd recommend not to add a user during installation, but after this script has done its work) log in as root and download the script like this:
 <pre><code>fetch --no-verify-peer https://raw.githubusercontent.com/rakor/freebsd-desktop/master/freebsd-desktop</code></pre>
 
-The default behaviour is to install a german KDE. If you'd like to have an other language open the script and edit the variables at the top to meet your joice.
+The default behaviour is to install a german KDE. If you'd like to have an other language or a small Awesome-desktop instead open the script and edit the variables at the top to meet your joice.
 
 Then let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>

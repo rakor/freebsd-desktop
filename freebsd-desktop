@@ -14,6 +14,8 @@ AUTOBOOTDELAY=3
 
 NTPSERVER=de.pool.ntp.org
 
+MYSHELL=/bin/tcsh
+
 #Here you can choose KDE or AWESOME
 DESKTOP=AWESOME
 
@@ -36,6 +38,7 @@ PASSWD=/etc/passwd
 SKELETONS=/usr/share/skel
 SYSCTL=/etc/sysctl.conf
 ANACRONTAB=/usr/local/etc/anacrontab
+XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 
 
 #+ check for root
@@ -96,7 +99,7 @@ else
 fi
 
 
-#+ Enable KDE
+#+ KDE
 #
 if [ "$DESKTOP" == "KDE" ]; then
 	if grep -q "kdm4_enable" $RCCONF; then
@@ -132,7 +135,7 @@ if [ "$DESKTOP" == "KDE" ]; then
 fi
 
 
-#+ Enable Awesome
+#+ awesome
 #
 if [ "$DESKTOP" == "AWESOME" ]; then
 	if grep -q "slim_enable" $RCCONF; then
@@ -200,7 +203,6 @@ else
 	echo "+ Changed all users to $CLASSNAME"
 fi
 
-XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 XORGKEYBOARDSNIPPET=$XORGCONFD/00-keyboard.conf
 XORGKEYBOARDSECTION="Section \"InputClass\"\n\
 \tIdentifier \"system-keyboard\"\n\
@@ -217,14 +219,14 @@ else
 fi
 
 
-#+ clone git
+#+ tcsh as default shell
 #
-if [ -d $CONFIGEXAMPLES ]; then
-	echo "! $CONFIGEXAMPLES does already exist. Doing nothing."
+if grep -q "^defaultshell" $ADDUSERCONF; then
+	echo "! defaultshell is already set. We will not set $MYSHELL"
 else
-	git clone https://github.com/rakor/config $CONFIGEXAMPLES
-	echo "+ cloned"
-fi 
+	echo "defaultshell=$MYSHELL" >> $ADDUSERCONF
+	echo "+ $MYSHELL set as defaultshell for new users"
+fi
 
 
 #+ autoboot delay
@@ -276,6 +278,7 @@ fi
 
 
 #+ no Coredumps please
+#
 if grep -q "^kern.coredump" $SYSCTL; then
     echo "! Coredumps are already set. Doing nothing"
 else
@@ -308,3 +311,25 @@ if grep -q -E "^[[:space:]]*$VARIABLE" $RCCONF; then
 else
     echo "$VARIABLE=\"YES\"" >> $RCCONF
 fi
+
+
+#+ clone git
+#
+if [ -d $CONFIGEXAMPLES ]; then
+	echo "! $CONFIGEXAMPLES does already exist. Doing nothing."
+else
+	git clone https://github.com/rakor/config $CONFIGEXAMPLES
+	echo "+ cloned"
+fi 
+
+
+#+ Copy examples into skeleton
+#
+AWESOMECONFIGDIR=home/.config/awesome
+AWESOMECONFIG=rc.lua
+mkdir -p $SKELETONS/dot.config/awesome
+cp $CONFIGEXAMPLES/$AWESOMECONFIGDIR/$AWESOMECONFIG $SKELETONS/dot.config/awesome
+cp $CONFIGEXAMPLES/home/.vimrc $SKELETONS/dot.vimrc
+cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
+
+
