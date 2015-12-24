@@ -68,7 +68,9 @@ if [ "$DESKTOP" == "KDE" ]; then
 elif [ "$DESKTOP" == "AWESOME" ]; then
 	PACKAGES="$PACKAGES x11-wm/awesome x11/slim"
 else
-	echo "You have not chosen a desktop!"
+	echo "! You have not chosen a desktop. The installation will not be ready after this script!"
+	echo "! Exiting this script. Please use a valid key for DESKTOP"
+	exit 2
 fi
 env ASSUME_ALWAYS_YES=yes pkg bootstrap
 pkg install -y $PACKAGES
