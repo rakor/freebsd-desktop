@@ -17,7 +17,7 @@ NTPSERVER=de.pool.ntp.org
 MYSHELL=/bin/tcsh
 
 #Here you can choose KDE or AWESOME
-DESKTOP=AWESOME
+DESKTOP=KDE
 
 ###################
 # Don't change anything behind this line if you don't know what you are doing
