@@ -92,6 +92,7 @@ pkg install -y $PACKAGES
 if echo $PACKAGES | grep -q "www/chromium"; then
     if grep -q "^kern.ipc.shm_allow_removed" $SYSCTL; then
         echo "kern.ipc.shm_allow_removed=1" >> $SYSCTL
+    fi
 fi
 #libreoffice
 if echo $PACKAGES | grep -q "editors/libreoffice"; then
