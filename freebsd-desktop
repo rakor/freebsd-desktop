@@ -109,6 +109,14 @@ if echo $PACKAGES | grep -q "editors/libreoffice"; then
         echo "! There is no libreoffice-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
     fi
 fi
+# virtualbox-additions
+if echo $PACKAGES | grep -q "emulators/virtualbox-ose-additions"; then
+    if grep -q "^vbox" $RCCONF; then
+        echo "vboxguest_enable=\"YES\"" >> $RCCONF
+        echo "vboxservice_enable=\"YES\"" >> $RCCONF
+    fi
+fi
+
 
 
 #+ anacron
