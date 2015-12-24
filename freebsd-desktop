@@ -72,6 +72,9 @@ else
 	echo "! Exiting this script. Please use a valid key for DESKTOP"
 	exit 2
 fi
+if dmesg | grep -q -E "^acpi.*VBOX"; then
+    PACKAGES="$PACKAGES emulators/virtualbox-ose-additions"
+fi
 env ASSUME_ALWAYS_YES=yes pkg bootstrap
 pkg install -y $PACKAGES
 
