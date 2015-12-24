@@ -18,7 +18,7 @@ To get all benefits out of this script you should _not_ add a user during instal
 After having done a freh installation of FreeBSD (I'd recommend not to add a user during installation, but after this script has done its work) log in as root and download the script like this:
 <pre><code>fetch --no-verify-peer https://raw.githubusercontent.com/rakor/freebsd-desktop/master/freebsd-desktop</code></pre>
 
-The default behaviour is to install a german KDE. If you'd like to have an other language or a small Awesome-desktop instead open the script and edit the variables at the top to meet your joice.
+The default behaviour is to install a german KDE. If you'd like to have an other language or a small Awesome-desktop instead open the script and edit the variables at the top to meet your choice.
 
 Then let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>
