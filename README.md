@@ -9,7 +9,7 @@ languagesettings, tmp-cleanup, anacron, powerd, ntp etc.
 
 At the moment the script will install a desktop based on KDE or Awesome (you have the choice).
 
-You should have at least 8GB free space to install a KDE deaktop.
+You should have at least 8GB free space to install a KDE desktop.
 
 To get all benefits out of this script you should _not_ add a user during installation, but after having this script added some config-files to the homedir-skeleton.
 
@@ -23,8 +23,10 @@ The default behaviour is to install a german KDE. If you'd like to have an other
 Then let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>
 
-If you need to add some users, this is the time for you:
+This is the right time to add the users you need:
 <pre><code>adduser</code></pre>
+
+If you'd like to get root-mails delivered to your created user, remember to change /etc/mail/aliases and run newaliases afterwards.
 
 If the script has done its job and everything went well reboot into your new desktop
 <pre><code>reboot</code></pre>
