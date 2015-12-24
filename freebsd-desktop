@@ -90,7 +90,7 @@ pkg install -y $PACKAGES
 #
 # chromium
 if echo $PACKAGES | grep -q "www/chromium"; then
-    if grep -q "^kern.ipc.shm_allow_removed" $SYSCTL; then
+    if ! grep -q "^kern.ipc.shm_allow_removed" $SYSCTL; then
         echo "kern.ipc.shm_allow_removed=1" >> $SYSCTL
     fi
 fi
