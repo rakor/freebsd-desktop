@@ -375,8 +375,53 @@ cp $CONFIGEXAMPLES/home/.vimrc $SKELETONS/dot.vimrc
 cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 
+#+ add an initial user
+#
+while true; do
+	echo -n "Do you want to add a administrative user? (The user will be added to 'wheel' and receive root-mails. The uid:gid will be "; echo -n `pw nextuser`; echo -n " [y/n]: "; read answer1;
+	case $answer1 in
+		[y]* )	while true; do
+				echo -n "Username: "
+				read username
+				if echo $username | grep -q -E "^[a-z][-a-z0-9]*$"; then
+					break;
+				else
+					echo "Username not valid"
+				fi
+			done
+			while true; do
+				echo -n "Password: "; stty -echo; read password; stty echo; echo ""
+				echo -n "Password (again): "; stty -echo; read password2; stty echo; echo ""
+				if [ $password == $password2 ]; then
+					break;
+				else
+					echo "The passwords did not match, please try again."
+				fi
+			done
+			while true; do
+				echo -n "Should we add the user $username ["; echo -n `pw nextuser`; echo -n "] [y/n]: "; read answer2
+				case $answer2 in 
+					[y]* ) 	echo "User $username will be created";
+						echo "$username:::::::::$$password" | adduser -f - && \
+							pw groupmod wheel -m $username || \
+							echo "Error creating user"
+						if ! grep -q -E "^[[:space:]]*root[[:space:]]:" /etc/mail/aliases; then
+							cp /etc/mail/aliases /etc/mail/aliases_old && \
+							cat /etc/mail/aliases_old | sed -E -e "s/^#[[:space:]]*root[[:space:]]*:.*$/root: $username/" > /etc/mail/aliases && \
+							rm /etc/mail/aliases_old && \
+							newaliases
+						fi
+						break 2;;
+					[n]* ) echo "The user will not be created.";break;;
+				esac
+			done;;
+		[n]* ) break;;
+	esac
+done
+
+
 #+ Final information
 #
 echo " "
-echo "Now you can add some users using 'adduser' and then restart the system using 'reboot' to boot into your new system."
+echo "You can now restart the system using 'reboot' to boot into your new system."
 echo "Have Fun!!"
