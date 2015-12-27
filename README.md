@@ -20,13 +20,11 @@ After having done a freh installation of FreeBSD (I'd recommend not to add a use
 
 The default behaviour is to install a german KDE. If you'd like to have an other language or a small Awesome-desktop instead open the script and edit the variables at the top to meet your choice.
 
-Then let the script do its job
+Next let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>
 
-This is the right time to add the users you need:
+If you need any additional users, this is the right time for it:
 <pre><code>adduser</code></pre>
-
-If you'd like to get root-mails delivered to your created user, remember to change /etc/mail/aliases and run newaliases afterwards.
 
 If the script has done its job and everything went well reboot into your new desktop
 <pre><code>reboot</code></pre>
