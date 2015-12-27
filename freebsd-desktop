@@ -10,9 +10,9 @@ CHARSET=UTF-8
 CLASSNAME=german
 CLASSDESC=GermanUsers
 
-AUTOBOOTDELAY=3
-
 NTPSERVER=de.pool.ntp.org
+
+AUTOBOOTDELAY=3
 
 MYSHELL=/bin/tcsh
 
@@ -41,7 +41,7 @@ SYSCTL=/etc/sysctl.conf
 ANACRONTAB=/usr/local/etc/anacrontab
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 
-FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux"
+FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux devel/git-gui graphics/gimp"
 
 #+ check for root
 #
@@ -375,10 +375,32 @@ cp $CONFIGEXAMPLES/home/.vimrc $SKELETONS/dot.vimrc
 cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 
+#+ delete existing users
+#
+USERCOUNT=`awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | wc -l` 
+if [ $USERCOUNT  > 0 ]; then
+	echo ""
+	echo "There are $USERCOUNT users found on the system having uids between 1000 and 2000 (we assume this are normal users created by hand during installation)."
+	echo "Changes beeing done to the system during this script will only take effect for newly created users. You can now delete those users and add them again."
+	echo "The found users are:"
+	awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD 
+	while true; do
+		echo -n "Do you want to delete all those users? (You can add new users later) [y,n]"; read answer
+		case $answer in
+			[y]* ) echo "Deleting users..."; awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | xargs -I {} rmuser -y {}; break;;
+			[n]* ) echo "The users will not be deleted."; break;;
+		esac
+	done
+fi
+
+
 #+ add an initial user
 #
 while true; do
-	echo -n "Do you want to add a administrative user? (The user will be added to 'wheel' and receive root-mails. The uid:gid will be "; echo -n `pw nextuser`; echo -n " [y/n]: "; read answer1;
+	echo ""
+	echo "Do you want to add an administrative user?"
+	echo -n " The user will be added to 'wheel' and receive root-mails. The uid:gid will be "; echo `pw nextuser`; 
+	echo -n " Add user [y/n]: "; read answer1;
 	case $answer1 in
 		[y]* )	while true; do
 				echo -n "Username: "
@@ -401,17 +423,22 @@ while true; do
 			while true; do
 				echo -n "Should we add the user $username ["; echo -n `pw nextuser`; echo -n "] [y/n]: "; read answer2
 				case $answer2 in 
-					[y]* ) 	echo "User $username will be created";
-						echo "$username:::::::::$password" | adduser -f - && \
-							pw groupmod wheel -m $username || \
-							echo "Error creating user"
-						if ! grep -q -E "^[[:space:]]*root[[:space:]]:" /etc/mail/aliases; then
-							cp /etc/mail/aliases /etc/mail/aliases_old && \
-							cat /etc/mail/aliases_old | sed -E -e "s/^#[[:space:]]*root[[:space:]]*:.*$/root: $username/" > /etc/mail/aliases && \
-							rm /etc/mail/aliases_old && \
-							newaliases
-						fi
-						break 2;;
+					[y]* ) 	if \
+							echo "$username:::::::::$password" | adduser -f - && \
+							pw groupmod wheel -m $username; then
+							if ! grep -q -E "^[[:space:]]*root[[:space:]]*:" /etc/mail/aliases; then
+								cp /etc/mail/aliases /etc/mail/aliases_old && \
+								cat /etc/mail/aliases_old | sed -E -e "s/^#[[:space:]]*root[[:space:]]*:.*$/root: $username/" > /etc/mail/aliases && \
+								rm /etc/mail/aliases_old && \
+								newaliases && \
+								echo "+ User $username will receive mails for root now" 
+							else
+								echo "! Maildelivery for user root will not be changed, maybe you had allready set an alias."
+							fi
+							break 2;
+						else
+							break; 
+						fi;;
 					[n]* ) echo "The user will not be created.";break;;
 				esac
 			done;;
