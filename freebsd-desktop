@@ -385,7 +385,7 @@ cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 #+ delete existing users
 #
 USERCOUNT=`awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | wc -l` 
-if [ $USERCOUNT  > 0 ]; then
+if [ $USERCOUNT  -ne 0 ]; then
 	echo ""
 	echo "There are $USERCOUNT users found on the system having uids between 1000 and 2000 (we assume this are normal users created by hand during installation)."
 	echo "Changes beeing done to the system during this script will only take effect for newly created users. You can now delete those users and add them again."
@@ -406,7 +406,8 @@ fi
 while true; do
 	echo ""
 	echo "Do you want to add an administrative user?"
-	echo -n " The user will be added to 'wheel' and receive root-mails. The uid:gid will be "; echo `pw nextuser`; 
+	echo " The user will be added to 'wheel' and receive root-mails."
+	echo -n "The uid:gid will be "; echo `pw nextuser`; 
 	echo -n " Add user [y/n]: "; read answer1;
 	case $answer1 in
 		[y]* )	while true; do
