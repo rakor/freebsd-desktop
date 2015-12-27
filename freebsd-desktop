@@ -402,7 +402,7 @@ while true; do
 				echo -n "Should we add the user $username ["; echo -n `pw nextuser`; echo -n "] [y/n]: "; read answer2
 				case $answer2 in 
 					[y]* ) 	echo "User $username will be created";
-						echo "$username:::::::::$$password" | adduser -f - && \
+						echo "$username:::::::::$password" | adduser -f - && \
 							pw groupmod wheel -m $username || \
 							echo "Error creating user"
 						if ! grep -q -E "^[[:space:]]*root[[:space:]]:" /etc/mail/aliases; then
