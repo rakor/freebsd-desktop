@@ -384,13 +384,14 @@ cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 #+ delete existing users
 #
-USERCOUNT=`awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | wc -l` 
+USERCOUNT=`awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | wc -l | xargs` 
 if [ $USERCOUNT  -ne 0 ]; then
 	echo ""
 	echo "There are $USERCOUNT users found on the system having uids between 1000 and 2000 (we assume this are normal users created by hand during installation)."
-	echo "Changes beeing done to the system during this script will only take effect for newly created users. You can now delete those users and add them again."
+	echo "Changes beeing done to the system during this script will only take effect for newly created users. You can now delete those users and add them again later."
 	echo "The found users are:"
 	awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD 
+	echo ""
 	while true; do
 		echo -n "Do you want to delete all those users? (You can add new users later) [y/n]: "; read answer
 		case $answer in
