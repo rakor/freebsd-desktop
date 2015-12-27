@@ -33,7 +33,8 @@ RCCONF=/etc/rc.conf
 PROFILE=/etc/profile
 LOGINCONF=/etc/login.conf
 ADDUSERCONF=/etc/adduser.conf
-CONFIGEXAMPLES=/usr/local/share/examples/rakors_config
+GLOBALEXAMPLES=/usr/local/share/examples
+CONFIGEXAMPLES=$GLOBALEXAMPLES/rakors_config
 LOADERCONF=/boot/loader.conf
 PASSWD=/etc/passwd
 SKELETONS=/usr/share/skel
@@ -41,6 +42,7 @@ SYSCTL=/etc/sysctl.conf
 ANACRONTAB=/usr/local/etc/anacrontab
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 
+PACKAGES="x11/xorg editors/vim sysutils/anacron"
 FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux devel/git-gui graphics/gimp"
 
 #+ check for root
@@ -64,7 +66,6 @@ fi
 
 #+ install packages
 #
-PACKAGES="x11/xorg editors/vim sysutils/anacron devel/git"
 if [ "$DESKTOP" == "KDE" ]; then
 	PACKAGES="$PACKAGES x11/kde4"
 elif [ "$DESKTOP" == "AWESOME" ]; then
@@ -355,13 +356,19 @@ else
 fi
 
 
-#+ clone git
+#+ fetch config examples
 #
+TMPZIPFILE=/tmp/master.zip
+GITHUBURL=https://github.com/rakor/config/archive/master.zip
+ZIPSUBFOLDER=config-master
 if [ -d $CONFIGEXAMPLES ]; then
 	echo "! $CONFIGEXAMPLES does already exist. Doing nothing."
 else
-	git clone https://github.com/rakor/config $CONFIGEXAMPLES
-	echo "+ Example config-files cloned"
+	fetch --no-verify-peer -o $TMPZIPFILE $GITHUBURL
+	unzip -q -d $GLOBALEXAMPLES $TMPZIPFILE
+	mv $GLOBALEXAMPLES/$ZIPSUBFOLDER $CONFIGEXAMPLES
+	rm $TMPZIPFILE
+	echo "+ Example config-files fetched"
 fi 
 
 
@@ -385,7 +392,7 @@ if [ $USERCOUNT  > 0 ]; then
 	echo "The found users are:"
 	awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD 
 	while true; do
-		echo -n "Do you want to delete all those users? (You can add new users later) [y,n]"; read answer
+		echo -n "Do you want to delete all those users? (You can add new users later) [y/n]: "; read answer
 		case $answer in
 			[y]* ) echo "Deleting users..."; awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | xargs -I {} rmuser -y {}; break;;
 			[n]* ) echo "The users will not be deleted."; break;;
