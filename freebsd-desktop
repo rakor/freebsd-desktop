@@ -131,7 +131,7 @@ fi
 # xdm
 if echo $PACKAGES | grep -q "x11/xdm"; then
 	cp /etc/ttys /etc/ttys_old && \
-	cat /etc/ttys_old | sed -E -e "s/^(ttyv8[[:space:]]+.*xdm.*xterm[[:space:]]+)off(.*)/\\1on\\2/" > /etc/mail/aliases && \
+	cat /etc/ttys_old | sed -E -e "s/^(ttyv8[[:space:]]+.*xdm.*xterm[[:space:]]+)off(.*)/\\1on\\2/" > /etc/ttys && \
 	rm /etc/ttys_old && \
 	echo "+ xdm activated."
 fi
