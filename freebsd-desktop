@@ -16,8 +16,8 @@ AUTOBOOTDELAY=3
 
 MYSHELL=/bin/tcsh
 
-#Here you can choose KDE or AWESOME
-DESKTOP=KDE
+#Here you can choose KDE, AWESOME or LUMINA
+DESKTOP="KDE"
 
 #If this is YES we will install a lot of stuff, like browser, office...
 MAKEITREALLYFAT="YES"
@@ -66,10 +66,23 @@ fi
 
 #+ install packages
 #
+env ASSUME_ALWAYS_YES=yes pkg bootstrap
 if [ "$DESKTOP" == "KDE" ]; then
 	PACKAGES="$PACKAGES x11/kde4"
+	PACKAGESUFFIX=-kde-l10n
+	PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
+	if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
+		PACKAGES="$PACKAGES $PACKAGENAME"
+	else
+		echo "! There is no KDE-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
+	fi
+	DMSTARTCOMMAND="/usr/local/bin/startkde4"
 elif [ "$DESKTOP" == "AWESOME" ]; then
-	PACKAGES="$PACKAGES x11-wm/awesome x11/slim"
+	PACKAGES="$PACKAGES x11-wm/awesome x11/xdm"
+	DMSTARTCOMMAND="/usr/local/bin/awesome"
+elif [ "$DESKTOP" == "LUMINA" ]; then
+	PACKAGES="$PACKAGES x11/lumina x11/lumina-i18n x11/slim"
+	DMSTARTCOMMAND="/usr/local/bin/Lumina-DE"
 else
 	echo "! You have not chosen a desktop. The installation will not be ready after this script!"
 	echo "! Exiting this script. Please use a valid key for DESKTOP"
@@ -81,7 +94,6 @@ fi
 if echo $MAKEITREALLYFAT | grep -q -i "YES"; then
     PACKAGES="$PACKAGES $FATPACKAGES"
 fi
-env ASSUME_ALWAYS_YES=yes pkg bootstrap
 pkg install -y $PACKAGES
 
 
@@ -116,7 +128,55 @@ if echo $PACKAGES | grep -q "emulators/virtualbox-ose-additions"; then
 	echo "vboxservice_flags=\"--disable-timesync\"" >> $RCCONF
     fi
 fi
-
+# xdm
+if echo $PACKAGES | grep -q "x11/xdm"; then
+	cp /etc/ttys /etc/ttys_old && \
+	cat /etc/ttys_old | sed -E -e "s/^(ttyv8[[:space:]]+.*xdm.*xterm[[:space:]]+)off(.*)/\\1on\\2/" > /etc/mail/aliases && \
+	rm /etc/ttys_old && \
+	echo "+ xdm activated."
+fi
+# slim
+if echo $PACKAGES | grep -q "x11/slim"; then
+	if grep -q "slim_enable" $RCCONF; then
+		echo "! Slim is present in $RCCONF. Doing nothing"
+	else
+		echo "slim_enable=\"YES\"" >> $RCCONF
+		echo "+ Slim activated."
+		if grep -q "^hald_enable" $RCCONF; then
+			echo "! hald already present"
+		else
+			echo "hald_enable=\"YES\"" >> $RCCONF
+			echo "+ hald enabled in $RCCONF"
+		fi
+		if grep -q "^dbus_enable" $RCCONF; then
+			echo "! dbus already present"
+		else
+			echo "dbus_enable=\"YES\"" >> $RCCONF
+			echo "+ dbus enabled in $RCCONF"
+		fi
+	fi
+fi
+# KDE
+if [ "$DESKTOP" == "KDE" ]; then
+	if grep -q "kdm4_enable" $RCCONF; then
+		echo "! KDM is present in $RCCONF. Doing nothing"
+	else
+		echo "kdm4_enable=\"YES\"" >> $RCCONF
+		echo "+ KDM activated."
+		if grep -q "^hald_enable" $RCCONF; then
+			echo "! hald already present"
+		else
+			echo "hald_enable=\"YES\"" >> $RCCONF
+			echo "+ hald enabled in $RCCONF"
+		fi
+		if grep -q "^dbus_enable" $RCCONF; then
+			echo "! dbus already present"
+		else
+			echo "dbus_enable=\"YES\"" >> $RCCONF
+			echo "+ dbus enabled in $RCCONF"
+		fi
+	fi
+fi
 
 
 #+ anacron
@@ -141,76 +201,6 @@ if grep -E -q "^[^#].*periodic" /etc/crontab; then
 	echo "+ Deactivated the periodic-scripts in $CRONTAB"
 else
 	echo "! There is no activated periodic-script in $CRONTAB. Doing nothing."
-fi
-
-
-#+ KDE
-#
-if [ "$DESKTOP" == "KDE" ]; then
-	if grep -q "kdm4_enable" $RCCONF; then
-		echo "! KDM is present in $RCCONF. Doing nothing"
-	else
-		echo "kdm4_enable=\"YES\"" >> $RCCONF
-		echo "+ KDM activated."
-		if grep -q "^hald_enable" $RCCONF; then
-			echo "! hald already present"
-		else
-			echo "hald_enable=\"YES\"" >> $RCCONF
-			echo "+ hald enabled in $RCCONF"
-		fi
-		if grep -q "^dbus_enable" $RCCONF; then
-			echo "! dbus already present"
-		else
-			echo "dbus_enable=\"YES\"" >> $RCCONF
-			echo "+ dbus enabled in $RCCONF"
-		fi
-	fi
-	PACKAGESUFFIX=-kde-l10n
-	PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
-	if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
-		echo "Trying to install the KDE-languagepack for $COUNTRYCODE"
-		if pkg install -y ${PACKAGENAME}; then
-			echo "+ ${PACKAGENAME} installed" 
-		else
-			echo "! could not install ${PACKAGENAME}"
-		fi
-	else
-		echo "! There is no KDE-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
-	fi
-fi
-
-
-#+ awesome
-#
-if [ "$DESKTOP" == "AWESOME" ]; then
-	if grep -q "slim_enable" $RCCONF; then
-		echo "! Slim is present in $RCCONF. Doing nothing"
-	else
-		echo "slim_enable=\"YES\"" >> $RCCONF
-		echo "+ Slim activated."
-		if grep -q "^hald_enable" $RCCONF; then
-			echo "! hald already present"
-		else
-			echo "hald_enable=\"YES\"" >> $RCCONF
-			echo "+ hald enabled in $RCCONF"
-		fi
-		if grep -q "^dbus_enable" $RCCONF; then
-			echo "! dbus already present"
-		else
-			echo "dbus_enable=\"YES\"" >> $RCCONF
-			echo "+ dbus enabled in $RCCONF"
-		fi
-	fi
-
-	XINITRCSKEL=dot.xinitrc
-	if [ -e $SKELETONS/$XINITRCSKEL ]; then
-	    echo "! There is a xinitrc skeleton available. Doing nothing"
-	else
-	    echo "export LANG=$LANGUAGE" >> $SKELETONS/$XINITRCSKEL
-	    echo "export MM_CHARSET=$CHARSET" >> $SKELETONS/$XINITRCSKEL
-	    echo "exec awesome" >> $SKELETONS/$XINITRCSKEL
-	    echo "+ xinitrc skeleton prepared to launch awesome"
-	fi
 fi
 
 
@@ -297,26 +287,19 @@ fi
 if grep -q "ntpdate_enable" $RCCONF; then
 	echo "! ntp  is present in $RCCONF. Doing nothing"
 else
-	echo "ntpdate_enable=\"YES\"" >> $RCCONF
-	echo "+ ntp activated."
-	if grep -q "^ntpdate_hosts" $RCCONF; then
-		echo "! ntpdate_hosts is already set in $RCCONF. Doing nothing"
+	echo "trying to set date/time via ntp-server..."
+	if ntpdate $NTPSERVER; then
+		echo "ntpdate_enable=\"YES\"" >> $RCCONF
+		echo "+ ntp activated."
+		if grep -q "^ntpdate_hosts" $RCCONF; then
+			echo "! ntpdate_hosts is already set in $RCCONF. Doing nothing"
+		else
+			echo "ntpdate_hosts=\"$NTPSERVER\"" >> $RCCONF
+			echo "+ ntpdate_hosts set to $NTPSERVER. Please verify if this host ist existent"
+		fi
 	else
-		echo "ntpdate_hosts=\"$NTPSERVER\"" >> $RCCONF
-		echo "+ ntpdate_hosts set to $NTPSERVER. Please verify if this host ist existent"
+		echo "! $NTPSERVER is not a valid ntp-server"
 	fi
-fi
-
-
-#+ Xdefaults
-#
-XDEFAULTSSKEL=dot.Xdefaults
-if grep -q "^xterm\*....ground" $SKELETONS/$XDEFAULTSSKEL; then
-    echo "! There are some colors set for xterm. Doing nothing"
-else
-    echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XDEFAULTSSKEL
-    echo "xterm*background: rgb:00/00/00" >> $SKELETONS/$XDEFAULTSSKEL
-    echo "+ Colors for xterm set nicely"
 fi
 
 
@@ -382,6 +365,32 @@ cp $CONFIGEXAMPLES/home/.vimrc $SKELETONS/dot.vimrc
 cp -f $CONFIGEXAMPLES/home/.cshrc $SKELETONS/dot.cshrc
 
 
+#+ Xdefaults
+#
+XDEFAULTSSKEL=dot.Xdefaults
+if grep -q "^xterm\*....ground" $SKELETONS/$XDEFAULTSSKEL; then
+    echo "! There are some colors set for xterm. Doing nothing"
+else
+    echo "xterm*foreground: rgb:a8/a8/a8" >> $SKELETONS/$XDEFAULTSSKEL
+    echo "xterm*background: rgb:00/00/00" >> $SKELETONS/$XDEFAULTSSKEL
+    echo "+ Colors for xterm set nicely"
+fi
+
+
+#+ xinitrc and xsession skeletons
+XINITRCSKEL=dot.xinitrc
+XSESSIONSKEL=dot.xsession
+if [ -e $SKELETONS/$XINITRCSKEL ]; then
+    echo "! There is a xinitrc skeleton available. Doing nothing"
+else
+    echo "export LANG=$LANGUAGE" >> $SKELETONS/$XINITRCSKEL
+    echo "export MM_CHARSET=$CHARSET" >> $SKELETONS/$XINITRCSKEL
+    echo "exec $DMSTARTCOMMAND" >> $SKELETONS/$XINITRCSKEL
+    cp $SKELETONS/$XINITRCSKEL $SKELETONS/$XSESSIONSKEL
+    echo "+ xinitrc and xsession skeleton prepared to launch $DMSTARTCOMMAND"
+fi
+
+
 #+ delete existing users
 #
 USERCOUNT=`awk -F : '{if ($3<2000 && $3>1000) {print $1}}' $PASSWD | wc -l | xargs` 
@@ -407,7 +416,7 @@ fi
 while true; do
 	echo ""
 	echo "Do you want to add an administrative user?"
-	echo " The user will be added to 'wheel' and receive root-mails."
+	echo " The user will be added to 'wheel' and 'operator' and receive root-mails."
 	echo -n "The uid:gid will be "; echo `pw nextuser`; 
 	echo -n " Add user [y/n]: "; read answer1;
 	case $answer1 in
@@ -434,7 +443,8 @@ while true; do
 				case $answer2 in 
 					[y]* ) 	if \
 							echo "$username:::::::::$password" | adduser -f - && \
-							pw groupmod wheel -m $username; then
+							pw groupmod wheel -m $username && \
+							pw groupmod operator -m $username; then
 							if ! grep -q -E "^[[:space:]]*root[[:space:]]*:" /etc/mail/aliases; then
 								cp /etc/mail/aliases /etc/mail/aliases_old && \
 								cat /etc/mail/aliases_old | sed -E -e "s/^#[[:space:]]*root[[:space:]]*:.*$/root: $username/" > /etc/mail/aliases && \
