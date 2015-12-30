@@ -102,6 +102,10 @@ if echo $PACKAGES | grep -q "editors/libreoffice"; then
     if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
 	PACKAGES="$PACKAGES $PACKAGENAME"
     fi
+    INSTALLGTKTHEME="YES"
+fi
+if [ $INSTALLGTKTHEME == "YES" ]; then
+	PACKAGES="$PACKAGES x11-themes/gtk-oxygen-engine"
 fi
 pkg install -y $PACKAGES
 
@@ -385,6 +389,13 @@ else
     echo "exec $DMSTARTCOMMAND" >> $SKELETONS/$XINITRCSKEL
     cp $SKELETONS/$XINITRCSKEL $SKELETONS/$XSESSIONSKEL
     echo "+ xinitrc and xsession skeleton prepared to launch $DMSTARTCOMMAND"
+fi
+
+#+ Set default gtk theme
+#
+GTKRCSKEL=dot.gtkrc-2.0
+if [ $INSTALLGTKTHEME == "YES" ]; then
+	echo "include /usr/local/share/themes/oxygen-gtk/gtk-2.0/gtkrc" >> $SKELETONS/$GTKRCSKEL
 fi
 
 
