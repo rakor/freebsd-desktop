@@ -295,7 +295,7 @@ else
 			echo "! ntpdate_hosts is already set in $RCCONF. Doing nothing"
 		else
 			echo "ntpdate_hosts=\"$NTPSERVER\"" >> $RCCONF
-			echo "+ ntpdate_hosts set to $NTPSERVER. Please verify if this host ist existent"
+			echo "+ ntpdate_hosts set to $NTPSERVER."
 		fi
 	else
 		echo "! $NTPSERVER is not a valid ntp-server"
