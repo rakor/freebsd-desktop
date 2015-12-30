@@ -41,6 +41,8 @@ SKELETONS=/usr/share/skel
 SYSCTL=/etc/sysctl.conf
 ANACRONTAB=/usr/local/etc/anacrontab
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
+TTYS=/etc/ttys
+XSETUP=/usr/local/lib/X11/xdm/Xsetup_0
 
 PACKAGES="x11/xorg editors/vim sysutils/anacron"
 FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux devel/git-gui graphics/gimp"
@@ -130,10 +132,15 @@ if echo $PACKAGES | grep -q "emulators/virtualbox-ose-additions"; then
 fi
 # xdm
 if echo $PACKAGES | grep -q "x11/xdm"; then
-	cp /etc/ttys /etc/ttys_old && \
-	cat /etc/ttys_old | sed -E -e "s/^(ttyv8[[:space:]]+.*xdm.*xterm[[:space:]]+)off(.*)/\\1on\\2/" > /etc/ttys && \
-	rm /etc/ttys_old && \
+	cp $TTYS ${TTYS}_old && \
+	cat ${TTYS}_old | sed -E -e "s/^(ttyv8[[:space:]]+.*xdm.*xterm[[:space:]]+)off(.*)/\\1on\\2/" > $TTYS && \
+	rm ${TTYS}_old && \
 	echo "+ xdm activated."
+	cp $XSETUP ${XSETUP}_old && \
+	cat ${XSETUP}_old | sed -E -e "s/^(xconsole.*)$/#\\1/" > $XSETUP && \
+	rm ${XSETUP}_old && \
+	echo "+ xconsole deactivated in xdm."
+
 fi
 # slim
 if echo $PACKAGES | grep -q "x11/slim"; then
@@ -147,12 +154,6 @@ if echo $PACKAGES | grep -q "x11/slim"; then
 		else
 			echo "hald_enable=\"YES\"" >> $RCCONF
 			echo "+ hald enabled in $RCCONF"
-		fi
-		if grep -q "^dbus_enable" $RCCONF; then
-			echo "! dbus already present"
-		else
-			echo "dbus_enable=\"YES\"" >> $RCCONF
-			echo "+ dbus enabled in $RCCONF"
 		fi
 	fi
 fi
@@ -169,13 +170,17 @@ if [ "$DESKTOP" == "KDE" ]; then
 			echo "hald_enable=\"YES\"" >> $RCCONF
 			echo "+ hald enabled in $RCCONF"
 		fi
-		if grep -q "^dbus_enable" $RCCONF; then
-			echo "! dbus already present"
-		else
-			echo "dbus_enable=\"YES\"" >> $RCCONF
-			echo "+ dbus enabled in $RCCONF"
-		fi
 	fi
+fi
+
+
+#+ dbus enable
+#
+if grep -q "^dbus_enable" $RCCONF; then
+	echo "! dbus already present"
+else
+	echo "dbus_enable=\"YES\"" >> $RCCONF
+	echo "+ dbus enabled in $RCCONF"
 fi
 
 
