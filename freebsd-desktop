@@ -47,6 +47,8 @@ XSETUP=/usr/local/lib/X11/xdm/Xsetup_0
 PACKAGES="x11/xorg editors/vim sysutils/anacron"
 FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux devel/git-gui graphics/gimp"
 
+INSTALLGTKTHEME="YES"
+
 #+ check for root
 #
 if [ `id -u` -ne 0 ]; then
@@ -93,6 +95,10 @@ fi
 if dmesg | grep -q -E "^acpi.*VBOX"; then
     PACKAGES="$PACKAGES emulators/virtualbox-ose-additions"
 fi
+if dmesg | grep -q -E "^nvidia.*on vga"; then
+    PACKAGES="$PACKAGES x11/nvidia-driver"
+	NVIDIA="YES"
+fi
 if echo $MAKEITREALLYFAT | grep -q -i "YES"; then
     PACKAGES="$PACKAGES $FATPACKAGES"
 fi
@@ -102,7 +108,6 @@ if echo $PACKAGES | grep -q "editors/libreoffice"; then
     if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
 	PACKAGES="$PACKAGES $PACKAGENAME"
     fi
-    INSTALLGTKTHEME="YES"
 fi
 if [ "$INSTALLGTKTHEME" == "YES" ]; then
 	PACKAGES="$PACKAGES x11-themes/gtk-oxygen-engine"
@@ -250,6 +255,34 @@ if [ ! -e $XORGCONFD/*keyboard* ]; then
     echo "+ Keyboardlayout $COUNTRYCODE set for Xorg"
 else
     echo "! There seems to be a file in $XORGCONFD configuring your keyboard. Doing nothing"
+fi
+
+
+#+ nvidia - setting graphics-card
+#
+if [ "$NVIDIA" == "YES" ]; then
+XORGNVIDIASNIPPET=$XORGCONFD/00-card.conf
+XORGNVIDIASECTION="Section \"Device\"\n\
+\tIdentifier\t\"Device0\"\n\
+\tDriver\t\"nvidia\"\n\
+\tVendorName\t\"NVIDIA Corporation\"\n\
+EndSection"
+	if [ ! -e $XORGCONFD/*card* ]; then
+	    printf "$XORGNVIDIASECTION" > $XORGNVIDIASNIPPET
+	    echo "+ Nvidia set for Xorg"
+	else
+	    echo "! There seems to be a file in $XORGCONFD configuring your card. Doing nothing"
+	fi
+    if ! grep -q "^linux_enable" $RCCONF; then
+        echo "linux_enable=\"YES\"" >> $RCCONF
+    fi
+    if ! grep -q "^linux_enable" $RCCONF; then
+        echo "linux_enable=\"YES\"" >> $RCCONF
+    fi
+    if ! grep -q "^nvidia_load" $LOADERCONF; then
+        echo "nvidia_load=\"YES\"" >> $LOADERCONF
+    fi
+
 fi
 
 
