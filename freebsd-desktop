@@ -96,6 +96,13 @@ fi
 if echo $MAKEITREALLYFAT | grep -q -i "YES"; then
     PACKAGES="$PACKAGES $FATPACKAGES"
 fi
+if echo $PACKAGES | grep -q "editors/libreoffice"; then
+    PACKAGESUFFIX=-libreoffice
+    PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
+    if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
+	PACKAGES="$PACKAGES $PACKAGENAME"
+    fi
+fi
 pkg install -y $PACKAGES
 
 
@@ -105,21 +112,6 @@ pkg install -y $PACKAGES
 if echo $PACKAGES | grep -q "www/chromium"; then
     if ! grep -q "^kern.ipc.shm_allow_removed" $SYSCTL; then
         echo "kern.ipc.shm_allow_removed=1" >> $SYSCTL
-    fi
-fi
-#libreoffice
-if echo $PACKAGES | grep -q "editors/libreoffice"; then
-    PACKAGESUFFIX=-libreoffice
-    PACKAGENAME=${COUNTRYCODE}${PACKAGESUFFIX}
-    if pkg search ${PACKAGENAME} | grep -q "${PACKAGENAME}"; then
-        echo "Trying to install the libreoffice-languagepack for $COUNTRYCODE"
-        if pkg install -y ${PACKAGENAME}; then
-            echo "+ ${PACKAGENAME} installed" 
-        else
-            echo "! could not install ${PACKAGENAME}"
-        fi
-    else
-        echo "! There is no libreoffice-languagepack for $COUNTRYCODE. Please choose one and install it by hand if needed."
     fi
 fi
 # virtualbox-additions
