@@ -104,7 +104,7 @@ if echo $PACKAGES | grep -q "editors/libreoffice"; then
     fi
     INSTALLGTKTHEME="YES"
 fi
-if [ $INSTALLGTKTHEME == "YES" ]; then
+if [ "$INSTALLGTKTHEME" == "YES" ]; then
 	PACKAGES="$PACKAGES x11-themes/gtk-oxygen-engine"
 fi
 pkg install -y $PACKAGES
