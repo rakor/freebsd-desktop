@@ -85,7 +85,7 @@ if [ "$DESKTOP" == "KDE" ]; then
 	fi
 	DMSTARTCOMMAND="/usr/local/bin/startkde4"
 elif [ "$DESKTOP" == "AWESOME" ]; then
-	PACKAGES="$PACKAGES x11-wm/awesome x11/xdm"
+	PACKAGES="$PACKAGES x11-wm/awesome x11/xdm x11/xlockmore"
 	DMSTARTCOMMAND="/usr/local/bin/awesome"
 elif [ "$DESKTOP" == "LUMINA" ]; then
 	PACKAGES="$PACKAGES x11/lumina x11/lumina-i18n x11/slim"
