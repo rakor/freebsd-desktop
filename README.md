@@ -1,17 +1,16 @@
 # freebsd-desktop
 Script to setup a FreeBSD machine for desktopuse
 
-
 This script is meant to be run once after a fresh installation of
 FreeBSD. It will do an update of the system, install a lot of packages
 and setup some stuff you could like to have on a desktop machine such as
 languagesettings, tmp-cleanup, anacron, powerd, ntp etc.
 
-At the moment the script will install a desktop based on KDE or Awesome (you have the choice).
+At the moment the script will install a desktop based on KDE, Lumina-DE or Awesome (you have the choice).
 
 You should have at least 8GB free space to install a KDE desktop.
 
-To get all benefits out of this script you should _not_ add a user during installation, but after having this script added some config-files to the homedir-skeleton.
+To get all benefits out of this script you should _not_ add a user during installation, but after having this script added some config-files to the homedir-skeleton. If you have addeed users nevertheless, the script will ask you to remove them in order to readd them afterwards.
 
 
 ## Using this script
@@ -23,7 +22,7 @@ The default behaviour is to install a german KDE. If you'd like to have an other
 Next let the script do its job
 <pre><code>sh ./freebsd-desktop</code></pre>
 
-If you need any additional users, this is the right time for it:
+The script gives you the possibility to add an initial user. If you need any additional users, this is the right time for it:
 <pre><code>adduser</code></pre>
 
 If the script has done its job and everything went well reboot into your new desktop
