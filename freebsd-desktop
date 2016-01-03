@@ -7,8 +7,6 @@
 LANGUAGE=de_DE.UTF-8
 COUNTRYCODE=de
 CHARSET=UTF-8
-CLASSNAME=german
-CLASSDESC=GermanUsers
 
 NTPSERVER=de.pool.ntp.org
 
@@ -46,6 +44,8 @@ ANACRONTAB=/usr/local/etc/anacrontab
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 TTYS=/etc/ttys
 XSETUP=/usr/local/lib/X11/xdm/Xsetup_0
+CLASSDESC=LocalUsers
+CLASSNAME=localized
 
 PACKAGES="x11/xorg editors/vim sysutils/anacron"
 FATPACKAGES="www/chromium editors/libreoffice sysutils/tmux devel/git-gui graphics/gimp"
