@@ -67,7 +67,7 @@ if freebsd-update fetch | grep -q "^No updates needed"; then
 	echo "+ No Update to install"
 else
 	freebsd-update install
-	echo "Updates installed"
+	echo "+ Updates installed"
 fi
 
 
@@ -114,7 +114,9 @@ fi
 if [ "$INSTALLGTKTHEME" == "YES" ]; then
 	PACKAGES="$PACKAGES x11-themes/gtk-oxygen-engine"
 fi
-pkg install -y $PACKAGES
+pkg install -y $PACKAGES && \
+echo "+ packages installed" || \
+echo "! Error while installing packages" | tee -a $ERRORLOG
 
 
 #+ manipulations needed by packages
@@ -123,6 +125,7 @@ pkg install -y $PACKAGES
 if echo $PACKAGES | grep -q "www/chromium"; then
     if ! grep -q "^kern.ipc.shm_allow_removed" $SYSCTL; then
         echo "kern.ipc.shm_allow_removed=1" >> $SYSCTL
+        echo "+ sysctl variable set to run chromium"
     fi
 fi
 # virtualbox-additions
@@ -130,7 +133,8 @@ if echo $PACKAGES | grep -q "emulators/virtualbox-ose-additions"; then
     if ! grep -q "^vbox" $RCCONF; then
         echo "vboxguest_enable=\"YES\"" >> $RCCONF
         echo "vboxservice_enable=\"YES\"" >> $RCCONF
-	echo "vboxservice_flags=\"--disable-timesync\"" >> $RCCONF
+	    echo "vboxservice_flags=\"--disable-timesync\"" >> $RCCONF
+        echo "+ Virtualbox guest additions activated"
     fi
 fi
 # xdm
