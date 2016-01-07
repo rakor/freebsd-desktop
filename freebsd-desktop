@@ -44,6 +44,7 @@ ANACRONTAB=/usr/local/etc/anacrontab
 XORGCONFD=/usr/local/etc/X11/xorg.conf.d
 TTYS=/etc/ttys
 XSETUP=/usr/local/lib/X11/xdm/Xsetup_0
+DEVFSRULES=/etc/devfs.rules
 CLASSDESC=LocalUsers
 CLASSNAME=localized
 
@@ -309,6 +310,29 @@ if [ -e $LOADERCONF ] && grep -q "^autoboot_delay" $LOADERCONF; then
 else
 	echo "autoboot_delay=\"$AUTOBOOTDELAY\"" >> $LOADERCONF
 	echo "+ Autobootdelay set to $AUTOBOOTDELAY seconds"
+fi
+
+
+#+ mount cd and usb devices as user
+if grep -q "^vfs.usermount" $SYSCTL; then
+else
+    echo "vfs.usermount=1" >> $SYSCTL
+fi
+RULESETNAME=localrules
+echo "[$RULESETNAME=10]"
+echo "add path 'cd*' mode 0660 group operator"      >> $DEVFSRULES
+echo "add path 'xpt*' mode 0660 group operator"     >> $DEVFSRULES
+echo "add path 'pass*' mode 0660 group operator"    >> $DEVFSRULES
+echo "add path 'da*s*' mode 0660 group operator"    >> $DEVFSRULES
+echo "add path 'md*' mode 0660 group operator"      >> $DEVFSRULES
+echo "add path 'video*' mode 0666 group operator"   >> $DEVFSRULES
+echo "+ Devfs-ruleset set"
+
+if grep -q "devfs_system_ruleset" $RCCONF; then
+    echo "! Devfs-ruleset is present in $RCCONF. Doing nothing"
+else
+    echo "devfs_system_ruleset=\"$RULESETNAME\"" >> $RCCONF
+    echo "+ Devfs-ruleset activated"
 fi
 
 
