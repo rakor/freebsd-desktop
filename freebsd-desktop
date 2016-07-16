@@ -60,6 +60,8 @@ if [ `id -u` -ne 0 ]; then
 	exit 1
 fi
 
+#+ check arguments
+#
 args=`getopt m $*`
 if [ $? -ne 0 ]; then
     echo ""
@@ -84,6 +86,8 @@ while true; do
     esac
 done
 
+#+ set settings interactively
+#
 if [ "$MANUAL" == "YES" ]; then
     #+ Ask for desktop
     #
@@ -152,6 +156,23 @@ if [ "$MANUAL" == "YES" ]; then
         esac
     done
     break;
+
+    #+ Ask for nVIdia
+    #
+    while true; do
+        echo ""
+        echo -n "Do you have a modern nVidia-gpu installed? [y/n]: "; read NVIDIAINSTALLED
+        case $NVIDIAINSTALLED in
+            [y]* ) echo "nVidia-driver will be installed";
+                    NVIDIA="YES";
+                    break;
+                    ;;
+            [n]* ) echo "no nVidia-driver will be installed"
+                    NVIDIA="NO"
+                    break;
+                    ;;
+        esac
+    done
 fi
 
 #+ freebsd-update
