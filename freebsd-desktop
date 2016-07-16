@@ -14,7 +14,7 @@ AUTOBOOTDELAY=3
 
 MYSHELL=/bin/tcsh
 
-#Here you can choose KDE, AWESOME or LUMINA
+#Here you can choose KDE, AWESOME, LXDE or LUMINA
 DESKTOP="KDE"
 
 #If this is YES we will install a lot of stuff, like browser, office...
@@ -91,6 +91,9 @@ elif [ "$DESKTOP" == "AWESOME" ]; then
 elif [ "$DESKTOP" == "LUMINA" ]; then
 	PACKAGES="$PACKAGES x11/lumina x11/lumina-i18n x11/slim"
 	DMSTARTCOMMAND="/usr/local/bin/Lumina-DE"
+elif [ "$DESKTOP" == "LXDE" ]; then
+	PACKAGES="$PACKAGES x11/lxde-meta x11/slim"
+	DMSTARTCOMMAND="/usr/local/bin/startlxde"
 else
 	echo "! You have not chosen a desktop. The installation will not be ready after this script!"
 	echo "! Exiting this script. Please use a valid key for DESKTOP"
