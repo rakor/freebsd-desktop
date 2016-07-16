@@ -14,7 +14,7 @@ AUTOBOOTDELAY=3
 
 MYSHELL=/bin/tcsh
 
-#Here you can choose KDE, AWESOME or LUMINA
+#Here you can choose KDE, AWESOME, LXDE or LUMINA
 DESKTOP="KDE"
 
 #If this is YES we will install a lot of stuff, like browser, office...
@@ -61,6 +61,120 @@ if [ `id -u` -ne 0 ]; then
 	exit 1
 fi
 
+#+ check arguments
+#
+args=`getopt m $*`
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -m      set some options interactively"
+    echo ""
+    exit 2;
+fi
+
+set -- $args
+
+while true; do
+    case "$1" in
+        -m ) MANUAL="YES";
+             shift;
+             ;;
+        -- ) 
+            shift; break
+            ;;
+    esac
+done
+
+#+ set settings interactively
+#
+if [ "$MANUAL" == "YES" ]; then
+    #+ Ask for desktop
+    #
+    while true; do
+        echo ""
+        echo -n "Which Desktop would you like to use [KDE|LXDE|AWESOME|LUMINA]: "; read DESKTOP;
+        case $DESKTOP in
+            KDE|LXDE|LUMINA|AWESOME ) echo "Desktop $DESKTOP selected..."; 
+            break;
+                ;;
+            * ) echo "Wrong answer. Please select one of the following."; 
+        esac
+    done
+
+    #+ Ask for making a fat installation
+    #
+    while true; do
+        echo ""
+        echo -n "Install some additional packages like browser, office, etc. [y/n]: "; read FAT;
+        case $FAT in
+            [y]* ) echo "Additional software will be installed"; MAKEITREALLYFAT="YES"
+                break;
+                ;;
+            [n]* ) echo "Additional software will not be installed"; unset MAKEITREALLYFAT;
+                break;
+                ;;
+        esac
+    done
+
+    #+ Ask for setting manual languagesettings
+    #
+    while true; do
+        echo ""
+        echo -n "Do you want tu use $LANGUAGE as language? [y/n]: "; read USELANG;
+        case $USELANG in
+            [y]* ) echo "Using $LANGUAGE as language."; 
+                break;
+                ;;
+            [n]* ) echo "You can now select your own settings for the language";
+                while true; do
+                    echo -n "Languagecode to use (current: $LANGUAGE): "; read NEWLANGUAGE;
+                    echo -n "Countrycode to use (current: $COUNTRYCODE): "; read NEWCOUNTRYCODE;
+                    echo -n "Charset use (current: $CHARSET): "; read NEWCHARSET;
+                    
+                    if ! [ -z "$NEWLANGUAGE" ]; then
+                        LANGUAGE=$NEWLANGUAGE
+                    fi
+                    if ! [ -z "$NEWCOUNTRYCODE" ]; then 
+                        COUNTRYCODE=$NEWCOUNTRYCODE;
+                    fi
+                    if ! [ -z "$NEWCHARSET" ]; then 
+                        CHARSET=$NEWCHARSET;
+                    fi
+
+                    echo "You selected for the language: $LANGUAGE";
+                    echo "You selected for the coutrycode: $COUNTRYCODE";
+                    echo "You selected for the charset: $CHARSET";
+                    echo "Do you want to proceed with these settings? [y/n]: "; read LANGOK;
+                    case $LANGOK in
+                        [y]* ) break;
+                            ;;
+                    esac
+                done
+                break;
+                ;;
+        esac
+    done
+    break;
+
+    #+ Ask for nVIdia
+    #
+    while true; do
+        echo ""
+        echo -n "Do you have a modern nVidia-gpu installed? [y/n]: "; read NVIDIAINSTALLED
+        case $NVIDIAINSTALLED in
+            [y]* ) echo "nVidia-driver will be installed";
+                    NVIDIA="YES";
+                    break;
+                    ;;
+            [n]* ) echo "no nVidia-driver will be installed"
+                    NVIDIA="NO"
+                    break;
+                    ;;
+        esac
+    done
+fi
 
 #+ freebsd-update
 #
@@ -92,6 +206,9 @@ elif [ "$DESKTOP" == "AWESOME" ]; then
 elif [ "$DESKTOP" == "LUMINA" ]; then
 	PACKAGES="$PACKAGES x11/lumina x11/lumina-i18n x11/slim"
 	DMSTARTCOMMAND="/usr/local/bin/Lumina-DE"
+elif [ "$DESKTOP" == "LXDE" ]; then
+	PACKAGES="$PACKAGES x11/lxde-meta x11/slim"
+	DMSTARTCOMMAND="/usr/local/bin/startlxde"
 else
 	echo "! You have not chosen a desktop. The installation will not be ready after this script!"
 	echo "! Exiting this script. Please use a valid key for DESKTOP"

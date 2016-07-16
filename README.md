@@ -6,7 +6,7 @@ FreeBSD. It will do an update of the system, install a lot of packages
 and setup some stuff you could like to have on a desktop machine such as
 languagesettings, tmp-cleanup, anacron, powerd, ntp etc.
 
-At the moment the script will install a desktop based on KDE, Lumina-DE or Awesome (you have the choice).
+At the moment the script will install a desktop based on KDE, Lumina-DE, LXDE or Awesome (you have the choice).
 
 You should have at least 8GB free space to install a KDE desktop.
 
@@ -17,10 +17,13 @@ To get all benefits out of this script you should _not_ add a user during instal
 After having done a freh installation of FreeBSD (I'd recommend not to add a user during installation, but after this script has done its work) log in as root and download the script like this:
 <pre><code>fetch --no-verify-peer https://raw.githubusercontent.com/rakor/freebsd-desktop/master/freebsd-desktop</code></pre>
 
-The default behaviour is to install a german KDE with additional software (office, browser, etc.). If you'd like to have an other language or a smaller Awesome or Lumina-desktop instead open the script and edit the variables at the top to meet your choice.
+The default behaviour is to install a german KDE with additional software (office, browser, etc.). If you'd like to have an other language or a smaller Awesome, LXDE or Lumina-desktop instead use the option -m. 
 
-Next, let the script do its job
+To install the standard with KDE and extra packages start the script
 <pre><code>sh ./freebsd-desktop</code></pre>
+
+To set some different options instead use the -m option.
+<pre><code>sh ./freebsd-desktop -m</code></pre>
 
 At the end the script gives you the possibility to add an initial user. If you need any additional users, this is the right time for it:
 <pre><code>adduser</code></pre>
